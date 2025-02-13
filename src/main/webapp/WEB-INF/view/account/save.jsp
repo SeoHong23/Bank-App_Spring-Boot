@@ -8,10 +8,10 @@
 	<h2>계좌생성(인증)</h2>
 	<h5>Bank App에 오신걸 환영합니다</h5>
 	<!-- 예외적으로 로그인은 보안 때문에 post로 던지자 -->
-	<!-- 
+	<!--
 		insert into account_tb(number, password, balance, user_id, created_at)
 	 -->
-	<form action="/account/save" method="post"> 
+	<form action="/account/save" method="post">
 		<div class="form-group">
 			<label for="number">number:</label>
 			<input type="text" class="form-control" placeholder="Enter number" id="username" name="number" value="1002-1234"  >
@@ -23,12 +23,12 @@
 		<div class="form-group">
 			<label for="balance">number:</label>
 			<input type="number" class="form-control" placeholder="Enter balance" id="username" name="balance" value="10000"  >
-		</div>		
-		
+		</div>
+
 		<div class="text-right">
 			<button type="submit" class="btn btn-primary">계좌 생성</button>
 		</div>
-		
+
 	</form>
 </div>
 <!-- end of col-sm-8  -->
