@@ -13,7 +13,7 @@ public class Define {
 	public static final String EXIST_ACCOUNT = "이미 계좌가 존재합니다.";
 	public static final String NOT_EXIST_ACCOUNT = "존재하는 계좌가 없습니다.";
 	public static final String FAIL_TO_CREATE_ACCOUNT = "계좌 생성이 실패하였습니다.";
-	public static final String FAIL_ACCOUNT_PASSWROD = "계좌 비밀번호가 틀렸습니다.";
+	public static final String FAIL_ACCOUNT_PASSWORD = "계좌 비밀번호가 틀렸습니다.";
 	public static final String LACK_Of_BALANCE = "출금 잔액이 부족 합니다.";
 	public static final String NOT_ACCOUNT_OWNER = "계좌 소유자가 아닙니다.";
 	
