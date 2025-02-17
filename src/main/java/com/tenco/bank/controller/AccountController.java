@@ -1,8 +1,6 @@
 package com.tenco.bank.controller;
 
-import com.tenco.bank.dto.AccountSaveDTO;
-import com.tenco.bank.dto.DepositDTO;
-import com.tenco.bank.dto.WithdrawalDTO;
+import com.tenco.bank.dto.*;
 import com.tenco.bank.handler.exception.DataDeliveryException;
 import com.tenco.bank.repository.model.Account;
 import com.tenco.bank.service.AccountService;
@@ -11,15 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
+import org.springframework.web.bind.annotation.*;
 import com.tenco.bank.handler.exception.UnAuthorizedException;
 import com.tenco.bank.repository.model.User;
-
 import jakarta.servlet.http.HttpSession;
-
+import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller // IoC
@@ -40,8 +35,8 @@ public class AccountController {
     @GetMapping("/save")
     public String savePage() {
         // 1.인증 검사가 필요(account 전체 필요)
-        User principal = (User)session.getAttribute("principal");
-        if(principal == null) {
+        User principal = (User) session.getAttribute("principal");
+        if (principal == null) {
             throw new UnAuthorizedException("인증된 사용자가 아닙니다",
                     HttpStatus.UNAUTHORIZED);
         }
@@ -54,24 +49,24 @@ public class AccountController {
         // 유효성 검사보다 먼저 인증검사를 먼저 하는 것이 좋습니다.
 
         // 1. 인증검사
-        User principal = (User)session.getAttribute("principal");
-        if(principal == null) {
+        User principal = (User) session.getAttribute("principal");
+        if (principal == null) {
             throw new UnAuthorizedException("로그인 먼저 해주세요",
                     HttpStatus.UNAUTHORIZED);
         }
 
         // 2. 유효성 검사
-        if(dto.getNumber() == null || dto.getNumber().isEmpty()) {
+        if (dto.getNumber() == null || dto.getNumber().isEmpty()) {
             throw new DataDeliveryException("계좌번호를 입력하시오",
                     HttpStatus.BAD_REQUEST);
         }
 
-        if(dto.getPassword() == null || dto.getPassword().isEmpty()) {
+        if (dto.getPassword() == null || dto.getPassword().isEmpty()) {
             throw new DataDeliveryException("계좌비밀번호를 입력하시오",
                     HttpStatus.BAD_REQUEST);
         }
 
-        if(dto.getBalance() == null || 	dto.getBalance() <= 0 ) {
+        if (dto.getBalance() == null || dto.getBalance() <= 0) {
             throw new DataDeliveryException("잘못된 입력 입니다",
                     HttpStatus.BAD_REQUEST);
         }
@@ -88,7 +83,7 @@ public class AccountController {
      * @param model - accountList
      * @return list.jsp
      */
-    @GetMapping({ "/list", "/" })
+    @GetMapping({"/list", "/"})
     public String listPage(Model model) {
 
         // 1.인증 검사가 필요(account 전체 필요)
@@ -110,19 +105,20 @@ public class AccountController {
     }
 
     @GetMapping("/withdrawal")
-    public String withdrawalPage(){
+    public String withdrawalPage() {
 
         User principal = (User) session.getAttribute(Define.PRINCIPAL);
-        if(principal == null) {
+        if (principal == null) {
             throw new UnAuthorizedException(Define.ENTER_YOUR_LOGIN, HttpStatus.BAD_REQUEST);
         }
         return "/account/withdrawal";
     }
+
     @PostMapping("/withdrawal")
     public String withdrawalProc(WithdrawalDTO dto) {
 
         User principal = (User) session.getAttribute(Define.PRINCIPAL);
-        if(principal == null) {
+        if (principal == null) {
             throw new UnAuthorizedException(Define.ENTER_YOUR_LOGIN, HttpStatus.BAD_REQUEST);
         }
         // 유효성 검사
@@ -132,22 +128,22 @@ public class AccountController {
         // 4. 패스워드 입력 유무 확인
 
         // 유효성 검사
-        if(dto.getAmount() == null) {
+        if (dto.getAmount() == null) {
             throw new DataDeliveryException(Define.ENTER_YOUR_BALANCE,
                     HttpStatus.BAD_REQUEST);
         }
 
-        if(dto.getAmount().longValue() <= 0) {
+        if (dto.getAmount().longValue() <= 0) {
             throw new DataDeliveryException(Define.W_BALANCE_VALUE,
                     HttpStatus.BAD_REQUEST);
         }
 
-        if(dto.getWAccountNumber() == null) {
+        if (dto.getWAccountNumber() == null) {
             throw new DataDeliveryException(Define.ENTER_YOUR_ACCOUNT_NUMBER,
                     HttpStatus.BAD_REQUEST);
         }
 
-        if(dto.getWAccountPassword() == null || dto.getWAccountPassword().isEmpty() ) {
+        if (dto.getWAccountPassword() == null || dto.getWAccountPassword().isEmpty()) {
             throw new DataDeliveryException(Define.ENTER_YOUR_PASSWORD,
                     HttpStatus.BAD_REQUEST);
         }
@@ -170,6 +166,7 @@ public class AccountController {
 
     /**
      * 입금 기능 처리
+     *
      * @param dto
      * @return 계좌 목록 페이지
      */
@@ -199,10 +196,86 @@ public class AccountController {
 
     }
 
+    // 이체 기능 화면 요청
+    @GetMapping("/transfer")
+    public String transferPage() {
+//        // 인증검사
+//        User principal = (User) session.getAttribute(Define.PRINCIPAL);
+//        if (principal == null) {
+//            throw new UnAuthorizedException(Define.ENTER_YOUR_LOGIN, HttpStatus.UNAUTHORIZED);
+//        }
+        return "/account/transfer";
+    }
+
+    @PostMapping("/transfer")
+    public String transferProc(TransferDTO dto) {
+        User principal = (User) session.getAttribute(Define.PRINCIPAL);
+        if (principal == null) {
+            throw new UnAuthorizedException(Define.ENTER_YOUR_LOGIN, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (dto.getAmount() == null) {
+            throw new DataDeliveryException(Define.ENTER_YOUR_BALANCE, HttpStatus.BAD_REQUEST);
+        }
+        if (dto.getAmount() <= 0) {
+            throw new DataDeliveryException(Define.ENTER_YOUR_BALANCE, HttpStatus.BAD_REQUEST);
+        }
+
+        // 3. 출금 계좌번호 입력 여부 확인
+        if (dto.getWAccountNumber() == null || dto.getWAccountNumber().isEmpty()) {
+            throw new DataDeliveryException("출금 계좌 번호를 입력하시오", HttpStatus.BAD_REQUEST);
+        }
+        // 4. 출금 계좌 비밀번호 입력 여부 확인
+        if (dto.getPassword() == null || dto.getPassword().isEmpty()) {
+            throw new DataDeliveryException("출금 계좌 비밀번호를 입력하시오", HttpStatus.BAD_REQUEST);
+        }
+        // 5. 입금 계좌 번호 입력 여부 확인
+        if (dto.getDAccountNumber() == null || dto.getDAccountNumber().isEmpty()) {
+            throw new DataDeliveryException("입금 계좌 번호를 입력하시오", HttpStatus.BAD_REQUEST);
+        }
+        // 6. 같은 계좌 입력 여부 확인(입,출금계좌가 같은지)
+        if (dto.getWAccountNumber().equals(dto.getDAccountNumber())) {
+            throw new DataDeliveryException("같은 계좌로 이체 할 수 없습니다.", HttpStatus.BAD_REQUEST); // 문자열 비교는 equals
+        }
+
+        // 서비스 호출
+        accountService.updateAccountTransfer(dto, principal.getId());
+        return "redirect:/account/list";
+    }
+
+    // 계좌 상세보기 화면 요청
+
+    /**
+     *
+     * @param accountId
+     * @return
+     * 주소 설계 : http://localhost:8080/account/detail/1
+     * type 설계 : http://localhost:8080/account/detail/1?type=all, deposit, withdraw
+     */
+    @GetMapping("/detail/{accountId}")
+    public String detailPage(@PathVariable(name = "accountId") Integer accountId, @RequestParam(required = false, name = "type") String type,Model model) {
+
+        User principal = (User) session.getAttribute(Define.PRINCIPAL);
+        if (principal == null) {
+            throw new UnAuthorizedException(Define.ENTER_YOUR_LOGIN, HttpStatus.UNAUTHORIZED);
+        }
+        // 유효성 검사
+        List<String> validTypes = Arrays.asList("all", "deposit", "withdrawal");
+        if(!validTypes.contains(type)) {
+            throw new DataDeliveryException("유효하지 않은 접근 입니다.", HttpStatus.BAD_REQUEST);
+        }
+
+        // 화면을 구성하기 위한 필요한 데이터
+        // 소유자 이름 -- account_tb (사용자 하나의 계좌 번호가 필요)
+        // 해당 계좌 번호 조회 -- account_tb
+        // 거래 내역 추출 -- history_tb
+        Account account = accountService.readAccountId(accountId);
+        List<HistoryAccountDTO> historyList = accountService.readHistoryByAccountId(type, accountId);
+
+        // 뷰 리졸브 --> jsp 데이터를 내려줄 때
+        // Model
+        model.addAttribute("account", account);
+        model.addAttribute("historyList", historyList);
+        return "/account/detail";
+    }
 }
-
-
-
-
-
-
