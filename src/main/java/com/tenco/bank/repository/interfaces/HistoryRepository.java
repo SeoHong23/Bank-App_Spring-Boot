@@ -20,5 +20,11 @@ public interface HistoryRepository {
 
 
     public List<HistoryAccountDTO>
-    findByAccountIdAndTypeOfHistory(@Param("type")String type, @Param("accountId")Integer accountId);
+    findByAccountIdAndTypeOfHistory(@Param("type")String type,
+                                    @Param("accountId")Integer accountId,
+                                    @Param("limit")int limit,
+                                    @Param("offset")int offset);
+
+    public int countHistoryAccountIdAndType(@Param("type")String type,
+                                            @Param("accountId")Integer accountId);
 }

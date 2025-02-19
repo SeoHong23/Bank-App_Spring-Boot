@@ -7,7 +7,7 @@ import com.tenco.bank.repository.model.User;
 import com.tenco.bank.service.UserService;
 import com.tenco.bank.utils.Define;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,20 +15,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller// IoC 대상 --> 보통 HTML 렌더링(자바코드) --> 클라이언트 응답
-@RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
 
     // @Autowired --> 가독성
+    @Autowired
     private final UserService userService;
     // 세션 메모리지에 접근하는 클래스가 있다.
+    @Autowired
     private final HttpSession session;
+
+    public UserController(UserService userService, HttpSession session) {
+        this.userService = userService;
+        this.session = session;
+    }
 
 
     /**
      * 회원가입
      * 주소설계 : http://localhost:8080/user/sign-up
-     *
+     * @return signUp.jsp 파일 리턴
      */
 
     @GetMapping("/sign-up")
@@ -41,6 +47,12 @@ public class UserController {
     // 주소 설계 http://localhost:8800/user/sign-up
     // Get, Post -> sign-up 같은 도메인이라도 구분이 가능하다.
     // REST API 를 사용하는 이유에 대해한번 더 살펴 보세요
+
+    /**
+     *
+     * @param dto
+     * @return 로그인 페이지로 이동
+     */
     @PostMapping("/sign-up")
     public String signProc(SignUpDTO dto) {
 
@@ -82,10 +94,11 @@ public class UserController {
      * -- 특정 회사 --> GET 방식 로그인 --> 암호화
      * 로그인 요청 처리
      * 주소설계 : http://localhost:8080/user/sign-in
-     * @return
+     * @return 메인 페이지로 이동
+     * @param dto
      */
     @PostMapping("/sign-in")
-    public String signProc(SignInDTO dto) {
+    public String signInProc(SignInDTO dto) {
 
         // 유효성 검사
         if(dto.getUsername() == null || dto.getUsername().isEmpty()) {
@@ -94,14 +107,17 @@ public class UserController {
         if(dto.getPassword() == null || dto.getPassword().isEmpty()) {
             throw new DataDeliveryException(Define.ENTER_YOUR_PASSWORD, HttpStatus.BAD_REQUEST);
         }
-        User principal = userService.readUser(dto);
+        User principal = userService.signIn(dto);
         session.setAttribute(Define.PRINCIPAL, principal);
 
         // todo account/list 경로로 변경해야함
-        return "redirect:/account/save";
+        return "redirect:main-page";
 
     }
-
+    /**
+     * 로그 아웃
+     * @return 로그인 페이지 이동
+     */
     @GetMapping("/logout")
     public String logout() {
         session.invalidate();

@@ -7,16 +7,20 @@
 <div class="col-sm-8">
 	<h2>회원 가입</h2>
 	<h5>Bank App에 오신걸 환영합니다</h5>
+	<!-- multipart/form-data 반드시 선언 -->
 
 	<form action="/user/sign-up" method="post" enctype="multipart/form-data">
 		<div class="form-group">
-			<label for="username">username:</label> <input type="text" class="form-control" placeholder="Enter username" id="username" name="username" value="야스오1">
+			<label for="username">username:</label>
+			<input type="text" class="form-control" placeholder="Enter username" id="username" name="username" value="야스오1">
 		</div>
 		<div class="form-group">
-			<label for="pwd">Password:</label> <input type="password" class="form-control" placeholder="Enter password" id="pwd" name="password" value="asd123">
+			<label for="pwd">Password:</label>
+			<input type="password" class="form-control" placeholder="Enter password" id="pwd" name="password" value="asd123">
 		</div>
 		<div class="form-group">
-			<label for="fullname">fullname:</label> <input type="text" class="form-control" placeholder="Enter fullname" id="fullname" name="fullname" value="바람검객">
+			<label for="fullname">fullname:</label>
+			<input type="text" class="form-control" placeholder="Enter fullname" id="fullname" name="fullname" value="바람검객">
 		</div>
 		<div class="custom-file">
 			<input type="file" class="custom-file-input" id="customFile" name="mFile">

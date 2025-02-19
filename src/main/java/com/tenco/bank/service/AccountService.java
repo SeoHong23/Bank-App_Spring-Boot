@@ -213,10 +213,23 @@ public class AccountService {
      * @param accountId (pk)
      * @return 입금, 출금, 입출금 거래내역 (3가지 타입으로 반환 처리)
      */
-    public List<HistoryAccountDTO> readHistoryByAccountId(String type, Integer accountId) {
+    public List<HistoryAccountDTO> readHistoryByAccountId(String type, Integer accountId, int page, int size) {
         List<HistoryAccountDTO> list = new ArrayList<>();
-        list = historyRepository.findByAccountIdAndTypeOfHistory(type, accountId);
+        // limit 변수, offset 변수
+        int limit = size;
+        int offset = (page -1) * size;
+        list = historyRepository.findByAccountIdAndTypeOfHistory(type, accountId, page, size);
          return list;
 
+    }
+
+    /**
+     * 단일 해당 계좌와 거래 유형에 따른 전체 레코드 수를 반환하는 메서드
+     * @param type
+     * @param accountId
+     * @return int
+     */
+    public int countHistoryByAccountAndType(String type, Integer accountId) {
+        return historyRepository.countHistoryAccountIdAndType(type, accountId);
     }
 }
