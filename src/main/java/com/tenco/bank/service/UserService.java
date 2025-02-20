@@ -47,7 +47,7 @@ public class UserService {
         // Http 응답으로 클라이언트에게 전달할 오류 메시지는 최소한으로 유지하고,
         // 보안 및 사용자 경험 측면에서 민감한 정보를 노출하지 않도록 합니다.
         int result = 0;
-        if (!dto.getMFile().isEmpty()) {
+        if (dto.getMFile() != null && !dto.getMFile().isEmpty()) {
             String[] fileNames =uploadFile(dto.getMFile());
             // dto 객체 상태 변경
             dto.setOriginFileName(fileNames[0]);
